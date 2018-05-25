@@ -1,3 +1,3 @@
 
 all:
-	$(CC)  src/*.c $(shell pkg-config --cflags --libs gtk+-3.0) -o shutdown-scheduler
+	$(CC)  -std=c11 src/*.c $(shell pkg-config --cflags --libs gtk+-3.0) -o shutdown-scheduler

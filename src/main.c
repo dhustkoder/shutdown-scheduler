@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-static const char *hours = "00", *minutes = "00";
+static const char *hours = "00";
+static const char *minutes = "00";
 
-void time_change(GtkComboBoxText* widget, gpointer user_data)
+static void time_change(GtkComboBoxText* widget, gpointer user_data)
 {
 	const char* str = ((void*)user_data);
 	printf("USERDATA: %s\n", str);
@@ -18,7 +19,7 @@ void time_change(GtkComboBoxText* widget, gpointer user_data)
 	printf("%s:%s\n", hours, minutes);
 }
 
-void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
+static void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
 {
 	static char buffer[64];
 	if (state) {
@@ -30,6 +31,8 @@ void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
 		system("shutdown -c");
 	}
 }
+
+
 
 int main (int argc, char *argv[])
 {
