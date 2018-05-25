@@ -20,10 +20,14 @@ void time_change(GtkComboBoxText* widget, gpointer user_data)
 
 void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
 {
+	static char buffer[64];
 	if (state) {
 		printf("ON\n");
+		sprintf(buffer, "shutdown -h %s:%s", hours, minutes);
+		system(buffer);
 	} else {
 		printf("OFF\n");
+		system("shutdown -c");
 	}
 }
 
