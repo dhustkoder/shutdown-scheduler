@@ -1,33 +1,63 @@
+#include <string.h>
+#include <stdlib.h>
 #include <gtk/gtk.h>
 
-static void activate(GtkApplication* app, gpointer user_data)
+static const char *hours = "00", *minutes = "00";
+
+void time_change(GtkComboBoxText* widget, gpointer user_data)
 {
-	GtkWidget *window, *hours, *minutes;
+	const char* str = ((void*)user_data);
+	printf("USERDATA: %s\n", str);
 
-	window = gtk_application_window_new(app);
-	gtk_window_set_title(GTK_WINDOW(window), "Shutdown Scheduler");
-	gtk_window_set_default_size(GTK_WINDOW(window), 360, 240);
-	gtk_window_set_resizable(GTK_WINDOW(window), FALSE);
+	if (strcmp(str, "hours") == 0) {
+		hours = gtk_combo_box_text_get_active_text(widget);
+	} else {
+		minutes = gtk_combo_box_text_get_active_text(widget);
+	}
 
-	hours = gtk_combo_box_text_new();
-	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(hours), "0", "FLA");
-	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(hours), "1", "LOP");
-	gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(hours), "2", "SFT");
-	gtk_combo_box_set_active (GTK_COMBO_BOX(hours), 0);
-	gtk_container_add(GTK_CONTAINER(window), hours);
-
-	gtk_widget_show_all(window);
+	printf("%s:%s\n", hours, minutes);
 }
 
-int main(int argc, char** argv)
+void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
 {
-	GtkApplication* app;
-	int status;
+	if (state) {
+		printf("ON\n");
+	} else {
+		printf("OFF\n");
+	}
+}
 
-	app = gtk_application_new("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-	g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-	status = g_application_run(G_APPLICATION(app), argc, argv);
-	g_object_unref(app);
+int main (int argc, char *argv[])
+{
+	GtkBuilder *builder;
+	GObject *window, *hours, *minutes, *switchh;
+	GError *error = NULL;
 
-	return status;
+	gtk_init(&argc, &argv);
+
+	/* Construct a GtkBuilder instance and load our UI description */
+	builder = gtk_builder_new();
+	if (gtk_builder_add_from_file(builder, "layout.glade", &error) == 0) {
+		g_printerr("Error loading file: %s\n", error->message);
+		g_clear_error(&error);
+		return 1;
+	}
+
+	/* Connect signal handlers to the constructed widgets. */
+	window = gtk_builder_get_object(builder, "window");
+	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+
+	hours = gtk_builder_get_object(builder, "hours");
+	g_signal_connect(hours, "changed", G_CALLBACK(time_change), "hours");
+
+	minutes = gtk_builder_get_object(builder, "minutes");
+	g_signal_connect(minutes, "changed", G_CALLBACK(time_change), "minutes");
+
+	switchh = gtk_builder_get_object(builder, "switch");
+	g_signal_connect(switchh, "state-set", G_CALLBACK(switch_set), NULL);
+
+
+	gtk_main();
+	
+	return 0;
 }
