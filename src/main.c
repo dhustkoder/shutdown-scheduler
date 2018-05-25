@@ -5,9 +5,9 @@
 static const char *hours = "00";
 static const char *minutes = "00";
 
-static void time_change(GtkComboBoxText* widget, gpointer user_data)
+static void time_change(GtkComboBoxText* const widget, const gpointer user_data)
 {
-	const char* str = ((void*)user_data);
+	const char* const str = ((void* const)user_data);
 	printf("USERDATA: %s\n", str);
 
 	if (strcmp(str, "hours") == 0) {
@@ -19,7 +19,7 @@ static void time_change(GtkComboBoxText* widget, gpointer user_data)
 	printf("%s:%s\n", hours, minutes);
 }
 
-static void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
+static void switch_set(GtkSwitch* const widget, const gboolean state, const gpointer user_data)
 {
 	static char buffer[64];
 	if (state) {
@@ -36,14 +36,10 @@ static void switch_set(GtkSwitch *widget, gboolean state, gpointer user_data)
 
 int main (int argc, char *argv[])
 {
-	GtkBuilder *builder;
-	GObject *window, *hours, *minutes, *switchh;
-	GError *error = NULL;
-
 	gtk_init(&argc, &argv);
 
-	/* Construct a GtkBuilder instance and load our UI description */
-	builder = gtk_builder_new();
+	GtkBuilder* const builder = gtk_builder_new();
+	GError *error = NULL;
 	if (gtk_builder_add_from_file(builder, "layout.glade", &error) == 0) {
 		g_printerr("Error loading file: %s\n", error->message);
 		g_clear_error(&error);
@@ -51,17 +47,17 @@ int main (int argc, char *argv[])
 	}
 
 	/* Connect signal handlers to the constructed widgets. */
-	window = gtk_builder_get_object(builder, "window");
+	GObject* const window = gtk_builder_get_object(builder, "window");
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-	hours = gtk_builder_get_object(builder, "hours");
-	g_signal_connect(hours, "changed", G_CALLBACK(time_change), "hours");
+	GObject* const hours_cb = gtk_builder_get_object(builder, "hours");
+	g_signal_connect(hours_cb, "changed", G_CALLBACK(time_change), "hours");
 
-	minutes = gtk_builder_get_object(builder, "minutes");
-	g_signal_connect(minutes, "changed", G_CALLBACK(time_change), "minutes");
+	GObject* const minutes_cb = gtk_builder_get_object(builder, "minutes");
+	g_signal_connect(minutes_cb, "changed", G_CALLBACK(time_change), "minutes");
 
-	switchh = gtk_builder_get_object(builder, "switch");
-	g_signal_connect(switchh, "state-set", G_CALLBACK(switch_set), NULL);
+	GObject* const switch_obj = gtk_builder_get_object(builder, "switch");
+	g_signal_connect(switch_obj, "state-set", G_CALLBACK(switch_set), NULL);
 
 
 	gtk_main();
