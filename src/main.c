@@ -11,12 +11,14 @@ static bool switch_state = false;
 
 static void cancel_shutdown_timer()
 {
+	printf("OFF\n");
 	system("shutdown -c");
 }
 
 static void setup_shutdown_timer()
 {
 	static char buffer[64];
+	printf("ON\n");
 	sprintf(buffer, "shutdown -h %s:%s", hours, minutes);
 	system(buffer);
 
@@ -44,13 +46,10 @@ static void time_change(GtkComboBoxText* const widget, const gpointer user_data)
 static void switch_set(GtkSwitch* const widget, const gboolean state, const gpointer user_data)
 {
 	switch_state = state;
-	if (switch_state) {
-		printf("ON\n");
+	if (switch_state)
 		setup_shutdown_timer();
-	} else {
-		printf("OFF\n");
+	else
 		cancel_shutdown_timer();
-	}
 }
 
 
