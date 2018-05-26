@@ -1,9 +1,26 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <gtk/gtk.h>
+
 
 static const char *hours = "00";
 static const char *minutes = "00";
+static bool switch_state = false;
+
+
+static void cancel_shutdown_timer()
+{
+	system("shutdown -c");
+}
+
+static void setup_shutdown_timer()
+{
+	static char buffer[64];
+	sprintf(buffer, "shutdown -h %s:%s", hours, minutes);
+	system(buffer);
+
+}
 
 static void time_change(GtkComboBoxText* const widget, const gpointer user_data)
 {
@@ -16,25 +33,29 @@ static void time_change(GtkComboBoxText* const widget, const gpointer user_data)
 		minutes = gtk_combo_box_text_get_active_text(widget);
 	}
 
+	if (switch_state) {
+		cancel_shutdown_timer();
+		setup_shutdown_timer();
+	}
+
 	printf("%s:%s\n", hours, minutes);
 }
 
 static void switch_set(GtkSwitch* const widget, const gboolean state, const gpointer user_data)
 {
-	static char buffer[64];
-	if (state) {
+	switch_state = state;
+	if (switch_state) {
 		printf("ON\n");
-		sprintf(buffer, "shutdown -h %s:%s", hours, minutes);
-		system(buffer);
+		setup_shutdown_timer();
 	} else {
 		printf("OFF\n");
-		system("shutdown -c");
+		cancel_shutdown_timer();
 	}
 }
 
 
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	gtk_init(&argc, &argv);
 
@@ -61,6 +82,9 @@ int main (int argc, char *argv[])
 
 
 	gtk_main();
+
+	if (switch_state)
+		cancel_shutdown_timer();
 	
 	return 0;
 }
